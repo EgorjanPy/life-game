@@ -1,4 +1,4 @@
-Simple life game
+# Simple life game
 
 ## Instalation
 ```
