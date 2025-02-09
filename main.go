@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/fatih/color"
@@ -32,6 +33,43 @@ type Position struct {
 	y int
 }
 
+var brownSquare = "\xF0\x9F\x9F\xAB"
+var greenSquare = "\xF0\x9F\x9F\xA9"
+
+//	type Color struct{
+//		color string
+//	}
+//
+//	func (w *World) String() [][]string {
+//		array := make([][]string, w.Height)
+//		for n, _ := range array {
+//			array[n] = make([]string, w.Width)
+//		}
+//		for i := 0; i < len(w.Cells); i++ {
+//			for k := 0; k < len(w.Cells[i]); k++ {
+//				if w.Cells[i][k] {
+//					array[i][k] = greenSquare // Живая клетка
+//				} else {
+//					array[i][k] = brownSquare // Мертвая клетка
+//				}
+//			}
+//		}
+//		return array
+//	}
+func (w *World) String() string {
+	res := ""
+	for i := 0; i < len(w.Cells); i++ {
+		for k := 0; k < len(w.Cells[i]); k++ {
+			if w.Cells[i][k] {
+				res += greenSquare // Живая клетка
+			} else {
+				res += brownSquare // Мертвая клетка
+			}
+		}
+		res += "\n"
+	}
+	return res
+}
 func (w *World) Neighbors(x, y int) int {
 	counter := 0
 	pos := []Position{{x - 1, y}, {x + 1, y}, {x - 1, y - 1}, {x, y - 1}, {x + 1, y - 1}, {x - 1, y + 1}, {x, y - 1}, {x + 1, y + 1}}
@@ -56,6 +94,40 @@ func (w *World) Next(x, y int) bool {
 
 	return false // В любых других случаях — клетка мертва
 }
+// func (w *World) LoadState(filename string) error {
+// 	f, _ := os.ReadFile(filename)
+
+// 	return nil
+// }
+func (w *World) SaveState(filename string) error {
+	f, err := os.Create(filename)
+	defer f.Close()
+	if err != nil {
+		return err
+	}
+	for i := 0; i < w.Height; i++ {
+		for j := 0; j < w.Width; j++ {
+			if w.Cells[i][j] {
+				_, err := f.WriteString("1")
+				if err != nil {
+					return err
+				}
+			} else {
+				_, err := f.WriteString("0")
+				if err != nil {
+					return err
+				}
+			}
+		}
+		if i != w.Height-1 {
+			_, err := f.WriteString("\n")
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
 func NextState(oldWorld, newWorld *World) {
 	// Переберём все клетки, чтобы понять, в каком они состоянии
 	for i := 0; i < oldWorld.Height; i++ {
@@ -77,7 +149,7 @@ func (w *World) Seed() {
 	}
 }
 func printField(field [][]bool) {
-	
+
 	for _, row := range field {
 		for _, cell := range row {
 			if cell {
@@ -94,8 +166,8 @@ func printField(field [][]bool) {
 }
 func main() {
 	// Зададим размеры сетки
-	height := 50
-	width := 100
+	height := 100
+	width := 50
 	// Объект для хранения текущего состояния сетки
 	currentWorld := NewWorld(height, width)
 	// Объект для хранения следующего состояния сетки
@@ -104,14 +176,13 @@ func main() {
 	currentWorld.Seed()
 	for { // Цикл для вывода каждого состояния
 		// Выведем текущее состояние на экран
-		printField(currentWorld.Cells)
-
-		// Рассчитываем следующее состояние
+		fmt.Println(currentWorld.String())
+		// Рассчитываем с	ледующее состояние
 		NextState(currentWorld, nextWorld)
 		// Изменяем текущее состояние
 		currentWorld = nextWorld
 		// Делаем паузу
-		time.Sleep(10 * time.Millisecond)
+		time.Sleep(500 * time.Millisecond)
 		// Специальная последовательность для очистки экрана после каждого шага
 		fmt.Print("\033[H\033[2J")
 	}
