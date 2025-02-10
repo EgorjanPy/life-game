@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/fatih/color"
@@ -94,33 +95,43 @@ func (w *World) Next(x, y int) bool {
 
 	return false // В любых других случаях — клетка мертва
 }
-// func (w *World) LoadState(filename string) error {
-// 	f, _ := os.ReadFile(filename)
 
-// 	return nil
-// }
+func (w *World) LoadState(filename string) error {
+	file, _ := os.ReadFile(filename)
+	lines := strings.Split(string(file), "\n")
+	width := len(lines[0])
+	height := len(lines)
+	for i := range lines {
+		if len(lines[i]) != width {
+			return fmt.Errorf("error")
+		}
+	}
+	w.Height = height
+	w.Width = width
+	return nil
+}
 func (w *World) SaveState(filename string) error {
-	f, err := os.Create(filename)
-	defer f.Close()
+	file, err := os.Create(filename)
+	defer file.Close()
 	if err != nil {
 		return err
 	}
 	for i := 0; i < w.Height; i++ {
 		for j := 0; j < w.Width; j++ {
 			if w.Cells[i][j] {
-				_, err := f.WriteString("1")
+				_, err := file.WriteString("1")
 				if err != nil {
 					return err
 				}
 			} else {
-				_, err := f.WriteString("0")
+				_, err := file.WriteString("0")
 				if err != nil {
 					return err
 				}
 			}
 		}
 		if i != w.Height-1 {
-			_, err := f.WriteString("\n")
+			_, err := file.WriteString("\n")
 			if err != nil {
 				return err
 			}
