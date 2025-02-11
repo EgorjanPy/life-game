@@ -29,11 +29,6 @@ func NewWorld(height, width int) *World {
 	}
 }
 
-type Position struct {
-	x int
-	y int
-}
-
 var brownSquare = "\xF0\x9F\x9F\xAB"
 var greenSquare = "\xF0\x9F\x9F\xA9"
 
@@ -71,12 +66,18 @@ func (w *World) String() string {
 	}
 	return res
 }
+
+type Position struct {
+	X int
+	Y int
+}
+
 func (w *World) Neighbors(x, y int) int {
 	counter := 0
 	pos := []Position{{x - 1, y}, {x + 1, y}, {x - 1, y - 1}, {x, y - 1}, {x + 1, y - 1}, {x - 1, y + 1}, {x, y - 1}, {x + 1, y + 1}}
 	for _, p := range pos {
-		if (0 <= p.y && p.y < w.Height) && (0 <= p.x && p.x < w.Width) {
-			if w.Cells[p.y][p.x] == true {
+		if (0 <= p.Y && p.Y < w.Height) && (0 <= p.X && p.X < w.Width) {
+			if w.Cells[p.Y][p.X] {
 				counter++
 			}
 		}
@@ -159,7 +160,7 @@ func (w *World) Seed() {
 		}
 	}
 }
-func printField(field [][]bool) {
+func PrintField(field [][]bool) {
 
 	for _, row := range field {
 		for _, cell := range row {
@@ -177,8 +178,8 @@ func printField(field [][]bool) {
 }
 func main() {
 	// Зададим размеры сетки
-	height := 100
-	width := 50
+	height := 10
+	width := 10
 	// Объект для хранения текущего состояния сетки
 	currentWorld := NewWorld(height, width)
 	// Объект для хранения следующего состояния сетки
